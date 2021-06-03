@@ -25,12 +25,14 @@ func routes(appConfig *config.AppConfig) http.Handler {
 func chiRoutes(appConfig *config.AppConfig) http.Handler {
 
 	mux := chi.NewRouter()
+	fileServer := http.FileServer(http.Dir("./static/"))
 
 	mux.Use(middleware.Recoverer)
 	mux.Use(CSRFTokenGenerator)
 	mux.Use(SessionLoad)
 	mux.Use(WriteToConsole)
 
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 	mux.Get("/", handlers.Repo.HomePg)
 	mux.Get("/About", handlers.Repo.About)
 	mux.Get("/Addition", handlers.Repo.AdditionPg)
