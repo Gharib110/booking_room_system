@@ -32,11 +32,11 @@ func chiRoutes(appConfig *config.AppConfig) http.Handler {
 	mux.Use(SessionLoad)
 	mux.Use(WriteToConsole)
 
-	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 	mux.Get("/", handlers.Repo.HomePg)
 	mux.Get("/About", handlers.Repo.About)
 	mux.Get("/Addition", handlers.Repo.AdditionPg)
 	mux.Get("/Division", handlers.Repo.DivisionPg)
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux
 }
