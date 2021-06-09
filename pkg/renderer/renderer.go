@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/DapperBlondie/booking_system/pkg/config"
 	"github.com/DapperBlondie/booking_system/pkg/models"
+	"github.com/justinas/nosurf"
 	"html/template"
 	"log"
 	"net/http"
@@ -18,6 +19,11 @@ var appConfig *config.AppConfig
 func NewAppConfig(config *config.AppConfig) {
 
 	appConfig = config
+}
+
+func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.CSFRToken = nosurf.Token(r)
+	return td
 }
 
 // RenderTemplate render a go template
@@ -40,7 +46,7 @@ func RenderTemplate(w *http.ResponseWriter, tmpl string, tmplData *models.Templa
 }
 
 // RenderByCacheTemplates render a go template by templatesCache
-func RenderByCacheTemplates(w *http.ResponseWriter, tmpl string, tmplData *models.TemplateData) {
+func RenderByCacheTemplates(w *http.ResponseWriter, r *http.Request, tmpl string, tmplData *models.TemplateData) {
 
 	cacheTmpls := appConfig.TemplateCache
 
@@ -52,7 +58,7 @@ func RenderByCacheTemplates(w *http.ResponseWriter, tmpl string, tmplData *model
 	} else {
 
 		tmplBuff := new(bytes.Buffer)
-		err := Tmpl.Execute(tmplBuff, tmplData)
+		err := Tmpl.Execute(tmplBuff, AddDefaultData(tmplData, r))
 		if err != nil {
 
 			log.Println("Error occurred during Executing the template !")

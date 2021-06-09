@@ -19,15 +19,15 @@ func WriteToConsole(next http.Handler) http.Handler {
 // CSRFTokenGenerator generate a CSRF token for us in the templateData structure
 func CSRFTokenGenerator(next http.Handler) http.Handler {
 
-	csrfToken := nosurf.New(next)
-	csrfToken.SetBaseCookie(http.Cookie{
+	csrfTokenHandler := nosurf.New(next)
+	csrfTokenHandler.SetBaseCookie(http.Cookie{
 		Path:     "/",
 		Secure:   appConfig.IsProduction,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	return csrfToken
+	return csrfTokenHandler
 }
 
 // SessionLoad load the session for us and store them in the browser for each request

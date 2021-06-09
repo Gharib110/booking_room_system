@@ -1,0 +1,27 @@
+{{template "base" .}}
+
+{{define "content"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <form action="/Availability" method="post" novalidate class="needs-validation">
+                    <input type="text" name="csrf_token" hidden value={{.CSFRToken}} />
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input required type="date" class="form-control" id="start_date" name="start_date" aria-describedby="startDateHelp">
+                        <small id="startDateHelp" class="form-text text-muted">Tell the start date like YYYY-MM-DD</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input required type="date" class="form-control" id="end_date" name="end_date" aria-describedby="endDateHelp">
+                        <small id="endDateHelp" class="form-text text-muted">Tell the start date like YYYY-MM-DD</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Search Availability</button>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+{{end}}

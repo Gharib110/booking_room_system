@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/DapperBlondie/booking_system/pkg/config"
 	"github.com/DapperBlondie/booking_system/pkg/handlers"
 	"github.com/DapperBlondie/booking_system/pkg/renderer"
 	"github.com/alexedwards/scs/v2"
-	"log"
-	"net/http"
-	"time"
 )
 
 const (

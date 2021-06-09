@@ -39,16 +39,44 @@ func (repo *Repository) HomePg(w http.ResponseWriter, r *http.Request) {
 
 	remoteIP := r.RemoteAddr
 	repo.AppConf.Session.Put(r.Context(), "remote-ip", remoteIP)
-	renderer.RenderByCacheTemplates(&w, "home.page.tmpl", &models.TemplateData{})
+	renderer.RenderByCacheTemplates(&w, r, "home.page.tmpl", &models.TemplateData{})
 }
 
 // About handle the about page
 func (repo *Repository) About(w http.ResponseWriter, r *http.Request) {
 
-	renderer.RenderByCacheTemplates(&w, "about.page.tmpl", &models.TemplateData{
+	renderer.RenderByCacheTemplates(&w, r, "about.page.tmpl", &models.TemplateData{
 		StringMap: map[string]string{"test": "Hello, I am here !",
 			"remote_ip": repo.AppConf.Session.GetString(r.Context(), "remote-ip")},
 	})
+}
+
+// Generals for handling the generals rooms
+func (repo *Repository) Generals(w http.ResponseWriter, r *http.Request) {
+	renderer.RenderByCacheTemplates(&w, r, "generals.page.tmpl", &models.TemplateData{})
+}
+
+// Majors for handling the majors rooms
+func (repo *Repository) Majors(w http.ResponseWriter, r *http.Request) {
+	renderer.RenderByCacheTemplates(&w, r, "majors.page.tmpl", &models.TemplateData{})
+}
+
+// Availability for handling the availability page
+func (repo *Repository) Availability(w http.ResponseWriter, r *http.Request) {
+	renderer.RenderByCacheTemplates(&w, r, "availability.page.tmpl", &models.TemplateData{})
+}
+
+// PostAvailability for handling the availability page
+func (repo *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte("Your Request posted"))
+	if err != nil {
+		fmt.Fprintf(w, "We get an error")
+	}
+}
+
+// Reservation for handling the Reserve operation
+func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	renderer.RenderByCacheTemplates(&w, r, "make_reservation.page.tmpl", &models.TemplateData{})
 }
 
 // AdditionPg handle /About
