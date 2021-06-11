@@ -41,6 +41,7 @@ func chiRoutes(appConfig *config.AppConfig) http.Handler {
 	mux.Get("/Availability", handlers.Repo.Availability)
 	mux.Post("/Availability", handlers.Repo.PostAvailability)
 	mux.Get("/Reserve", handlers.Repo.Reservation)
+	mux.Post("/Availability-json", handlers.Repo.JSONAvailability)
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/DapperBlondie/booking_system/pkg/config"
@@ -13,6 +14,11 @@ import (
 
 type Repository struct {
 	AppConf *config.AppConfig
+}
+
+type JsonResponse struct {
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
 }
 
 // Repo a variable we can share our wide configuration with handlers
@@ -68,9 +74,30 @@ func (repo *Repository) Availability(w http.ResponseWriter, r *http.Request) {
 
 // PostAvailability for handling the availability page
 func (repo *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("Your Request posted"))
+	start_date := r.Form.Get("start_date")
+	end_date := r.Form.Get("end_date")
+	_, err := w.Write([]byte(fmt.Sprintf("start: %s\tend: %s\n", start_date, end_date)))
 	if err != nil {
 		fmt.Fprintf(w, "We get an error")
+	}
+}
+
+// JSONAvailability used for getting the information for start date and end date
+func (repo *Repository) JSONAvailability(w http.ResponseWriter, r *http.Request) {
+	resp := JsonResponse{
+		OK:      true,
+		Message: "Available",
+	}
+
+	out, err := json.MarshalIndent(resp, "", "   ")
+	if err != nil {
+		fmt.Fprint(w, "We can not give you the JSON file :(")
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(out)
+	if err != nil {
+		log.Println(err)
 	}
 }
 

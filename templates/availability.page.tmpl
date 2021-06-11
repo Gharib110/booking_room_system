@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <form action="/Availability" method="post" novalidate class="needs-validation">
+                <form id="json_data_form" action="/Availability" method="post" novalidate class="needs-validation">
                     <input type="text" name="csrf_token" hidden value={{.CSFRToken}} />
                     <div class="form-group">
                         <label for="start_date">Start Date</label>
@@ -17,11 +17,45 @@
                         <small id="endDateHelp" class="form-text text-muted">Tell the start date like YYYY-MM-DD</small>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Search Availability</button>
+                    <button id="form_submit" type="submit" class="btn btn-primary">Search Availability</button>
                 </form>
             </div>
         </div>
-
-
     </div>
+    <div>
+        <form id="myForm" action="/Availability-json" method="post" novalidate class="needs-validation" hidden>
+            <input type="text" name="csrf_token" hidden value={{.CSFRToken}} />
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input  required type="date" class="form-control" id="start_date" name="start_date" aria-describedby="startDateHelp">
+                <small id="startDateHelp" class="form-text text-muted">Tell the start date like YYYY-MM-DD</small>
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                <input required type="date" class="form-control" id="end_date" name="end_date" aria-describedby="endDateHelp">
+                <small id="endDateHelp" class="form-text text-muted">Tell the start date like YYYY-MM-DD</small>
+            </div>
+
+            <button  id="submitButton" type="submit" class="btn btn-primary">Search Availability</button>
+        </form>
+        <button id="mybutton" >Click ME !</button>
+    </div>
+        <script>
+            const submitButton = document.getElementById("mybutton");
+            submitButton.onclick = ev => {
+                const form = document.getElementById("myForm");
+                const formData = new FormData(form);
+                fetch("/Availability-json", {
+                    method:"POST",
+                    body: formData,
+                }).then(value => {
+                    return value.json();
+                }).then(data => {
+                    console.log(data);
+                }).catch(reason => {
+                    console.log(reason);
+                });
+            };
+
+        </script>
 {{end}}
