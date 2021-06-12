@@ -7,6 +7,7 @@ import (
 	"github.com/DapperBlondie/booking_system/pkg/config"
 	"github.com/DapperBlondie/booking_system/pkg/models"
 	"github.com/DapperBlondie/booking_system/pkg/renderer"
+	"github.com/DapperBlondie/booking_system/validation"
 	"log"
 	"math"
 	"net/http"
@@ -103,7 +104,13 @@ func (repo *Repository) JSONAvailability(w http.ResponseWriter, r *http.Request)
 
 // Reservation for handling the Reserve operation
 func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	renderer.RenderByCacheTemplates(&w, r, "make_reservation.page.tmpl", &models.TemplateData{})
+	renderer.RenderByCacheTemplates(&w, r, "make_reservation.page.tmpl", &models.TemplateData{
+		Form: validation.New(nil),
+	})
+}
+
+func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request)  {
+
 }
 
 // AdditionPg handle /About

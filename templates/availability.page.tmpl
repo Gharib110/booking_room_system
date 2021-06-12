@@ -43,7 +43,7 @@
         <script>
             const submitButton = document.getElementById("mybutton");
             submitButton.onclick = ev => {
-                const form = document.getElementById("myForm");
+                const form = document.getElementById("json_data_form");
                 const formData = new FormData(form);
                 fetch("/Availability-json", {
                     method:"POST",
