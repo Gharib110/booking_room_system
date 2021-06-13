@@ -62,7 +62,7 @@ func RenderByCacheTemplates(w *http.ResponseWriter, r *http.Request, tmpl string
 		if err != nil {
 
 			log.Println("Error occurred during Executing the template !")
-			_, _ = fmt.Fprintf(*w, "Error occurred during loading the page !")
+			_, _ = fmt.Fprintf(*w, "Error occurred during loading the page ! => \n"+err.Error())
 		} else {
 
 			_, err := tmplBuff.WriteTo(*w)

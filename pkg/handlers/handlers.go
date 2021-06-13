@@ -109,8 +109,31 @@ func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request)  {
+func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Println("We have some errors in parsing reservation from data")
+	}
 
+	reservation := models.ReservationData{
+		FirstName: r.Form.Get("first_name"),
+		LastName:  r.Form.Get("last_name"),
+		Phone:     r.Form.Get("phone"),
+		Email:     r.Form.Get("email"),
+	}
+
+	form := validation.New(r.PostForm)
+	form.Has("first_name", r)
+
+	if !form.Valid() {
+		data := make(map[string]interface{})
+		data["reservation"] = reservation
+
+		renderer.RenderByCacheTemplates(&w, r, "make_reservation.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+	}
 }
 
 // AdditionPg handle /About

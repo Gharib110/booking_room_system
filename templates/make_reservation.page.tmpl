@@ -6,6 +6,9 @@
             <h1>Make Reservation</h1>
             <form action="/Reserve" method="post" class="needs-validation" novalidate>
                 <input type="text" name="csrf_token" hidden value={{.CSFRToken}} />
+                {{with .Form.Errors.Get "first_name"}}
+                    <label>{{.}}</label>
+                {{end}}
                 <div class="form-group mt-5">
                     <label for="first_name">FirstName : </label>
                     <input type="text" name="first_name" id="first_name" class="form-control" required autocomplete="off" />
