@@ -123,7 +123,7 @@ func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := validation.New(r.PostForm)
-	form.Has("first_name", r)
+	form.RequiredField("first_name", "last_name", "phone", "email")
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
