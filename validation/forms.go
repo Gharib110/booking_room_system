@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"github.com/asaskevich/govalidator"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,4 +55,11 @@ func (f *Form) Has(field string, r *http.Request) bool {
 	}
 
 	return true
+}
+
+func (f *Form) IsEmail(field string) {
+	if !govalidator.IsEmail(field) {
+
+		f.Errors.Add(field, "Invalid E-mail Address !")
+	}
 }
