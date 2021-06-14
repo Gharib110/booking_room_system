@@ -104,11 +104,17 @@ func (repo *Repository) JSONAvailability(w http.ResponseWriter, r *http.Request)
 
 // Reservation for handling the Reserve operation
 func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	var emptyReservation models.ReservationData
+	data := make(map[string]interface{})
+	data["reservation"] = emptyReservation
+
 	renderer.RenderByCacheTemplates(&w, r, "make_reservation.page.tmpl", &models.TemplateData{
 		Form: validation.New(nil),
+		Data: data,
 	})
 }
 
+// PostReservation handling the post request that send from // make_reservation.page.tmpl reservation form
 func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -124,6 +130,7 @@ func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	form := validation.New(r.PostForm)
 	form.RequiredField("first_name", "last_name", "phone", "email")
+	form.MinLength("first_name", 3, r)
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
@@ -133,6 +140,11 @@ func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 			Form: form,
 			Data: data,
 		})
+	} else {
+		_, err := fmt.Fprintf(w, "We get your data, Thank you !")
+		if err != nil {
+			log.Println("An Error occurred [Post]")
+		}
 	}
 }
 
