@@ -115,7 +115,7 @@ func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 }
 
 // PostReservation handling the post request that send from // make_reservation.page.tmpl reservation form
-func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Println("We have some errors in parsing reservation from data")
@@ -131,7 +131,7 @@ func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	form := validation.New(r.PostForm)
 	form.RequiredField("first_name", "last_name", "phone", "email")
 	form.MinLength("first_name", 3, r)
-	form.IsEmail("e")
+	//form.IsEmail("email")
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
@@ -141,12 +141,28 @@ func (repo Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 			Form: form,
 			Data: data,
 		})
+
+		return
 	} else {
-		_, err := fmt.Fprintf(w, "We get your data, Thank you !")
-		if err != nil {
-			log.Println("An Error occurred [Post]")
-		}
+		repo.AppConf.Session.Put(r.Context(), "reservation", reservation)
+		http.Redirect(w, r, "/Reservation_Summary", http.StatusSeeOther)
 	}
+}
+
+// ReservationSummary for getting the PostReservation data and show them to the user
+func (repo *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
+	reservation, ok := repo.AppConf.Session.Get(r.Context(), "reservation").(models.ReservationData)
+	if !ok {
+		log.Println("We have error in finding the reservation data in session.")
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	renderer.RenderByCacheTemplates(&w, r, "reservation_summary.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 }
 
 // AdditionPg handle /About

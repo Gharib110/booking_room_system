@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
+	"github.com/DapperBlondie/booking_system/pkg/models"
 	"log"
 	"net/http"
 	"time"
@@ -25,6 +27,7 @@ func main() {
 	appConfig = new(config.AppConfig)
 	appConfig.IsProduction = false
 
+	gob.Register(models.ReservationData{})
 	session = scs.New()
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Persist = true
