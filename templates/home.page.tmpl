@@ -66,4 +66,13 @@
             </div>
         </div>
     </div>
+
+
+        <script>
+            {{with .Error}}
+
+                window.alert({{.}});
+
+            {{end}}
+        </script>
 {{end}}

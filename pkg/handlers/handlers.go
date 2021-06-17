@@ -154,6 +154,8 @@ func (repo *Repository) ReservationSummary(w http.ResponseWriter, r *http.Reques
 	reservation, ok := repo.AppConf.Session.Get(r.Context(), "reservation").(models.ReservationData)
 	if !ok {
 		log.Println("We have error in finding the reservation data in session.")
+		repo.AppConf.Session.Put(r.Context(), "error", "We can not find your reservation data.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
