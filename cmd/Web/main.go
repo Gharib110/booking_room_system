@@ -23,31 +23,10 @@ var appConfig *config.AppConfig
 var session *scs.SessionManager
 
 func main() {
-
-	appConfig = new(config.AppConfig)
-	appConfig.IsProduction = false
-
-	gob.Register(models.ReservationData{})
-	session = scs.New()
-	session.Cookie.SameSite = http.SameSiteLaxMode
-	session.Cookie.Persist = true
-	session.Cookie.Secure = appConfig.IsProduction
-
-	appConfig.Session = session
-
-	tmplCache, err := renderer.CreateCacheTemplates()
+	err := run()
 	if err != nil {
-
-		log.Fatal("We have problem with creating cache for our templates : ", err.Error())
+		log.Fatal("This error occurred in the run method : ", err)
 	}
-
-	appConfig.TemplateCache = tmplCache
-	appConfig.UseCache = true
-
-	renderer.NewAppConfig(appConfig)
-	repo := handlers.NewRepo(appConfig)
-	handlers.NewHandlers(repo)
-
 	srv := &http.Server{
 		Addr:         ConnHost + ConnPort,
 		Handler:      chiRoutes(appConfig),
@@ -62,4 +41,33 @@ func main() {
 	}
 
 	return
+}
+
+func run() error {
+
+	appConfig = new(config.AppConfig)
+	appConfig.IsProduction = false
+
+	gob.Register(models.ReservationData{})
+	session = scs.New()
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Persist = true
+	session.Cookie.Secure = appConfig.IsProduction
+
+	appConfig.Session = session
+
+	tmplCache, err := renderer.CreateCacheTemplates()
+	if err != nil {
+		log.Println("This is an error about CreateCacheTemplates.")
+		return err
+	}
+
+	appConfig.TemplateCache = tmplCache
+	appConfig.UseCache = true
+
+	renderer.NewAppConfig(appConfig)
+	repo := handlers.NewRepo(appConfig)
+	handlers.NewHandlers(repo)
+
+	return nil
 }
