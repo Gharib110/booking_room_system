@@ -45,6 +45,7 @@
             submitButton.onclick = ev => {
                 const form = document.getElementById("json_data_form");
                 const formData = new FormData(form);
+
                 fetch("/Availability-json", {
                     method:"POST",
                     body: formData,
