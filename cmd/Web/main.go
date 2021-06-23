@@ -1,29 +1,38 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/gob"
 	"fmt"
+	"github.com/DapperBlondie/booking_system/pkg/config"
+	"github.com/DapperBlondie/booking_system/pkg/driver"
+	"github.com/DapperBlondie/booking_system/pkg/handlers"
 	"github.com/DapperBlondie/booking_system/pkg/models"
+	"github.com/DapperBlondie/booking_system/pkg/renderer"
+	"github.com/alexedwards/scs/v2"
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/DapperBlondie/booking_system/pkg/config"
-	"github.com/DapperBlondie/booking_system/pkg/handlers"
-	"github.com/DapperBlondie/booking_system/pkg/renderer"
-	"github.com/alexedwards/scs/v2"
 )
 
 const (
 	ConnHost = "localhost:"
 	ConnPort = "8080"
+	PostgresDBString = "host=localost port=5432 dbname=postgres user=postgres password=alireza1380##"
 )
 
 var appConfig *config.AppConfig
 var session *scs.SessionManager
 
 func main() {
-	err := run()
+	dbConn, err := run()
+	defer func(SQL *sql.DB) {
+		err := SQL.Close()
+		if err != nil {
+			log.Fatal(err.Error() + " ,We can not close the connection to postgreSQL :(")
+		}
+	}(dbConn.SQL)
+
 	if err != nil {
 		log.Fatal("This error occurred in the run method : ", err)
 	}
@@ -43,7 +52,7 @@ func main() {
 	return
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 
 	appConfig = new(config.AppConfig)
 	appConfig.IsProduction = false
@@ -56,18 +65,24 @@ func run() error {
 
 	appConfig.Session = session
 
+	dbConn, err := driver.ConnectSQL(PostgresDBString)
+	if err != nil {
+		log.Fatal(err.Error() + " ,During connecting to the database !")
+		return nil, err
+	}
+
 	tmplCache, err := renderer.CreateCacheTemplates()
 	if err != nil {
 		log.Println("This is an error about CreateCacheTemplates.")
-		return err
+		return nil, err
 	}
 
 	appConfig.TemplateCache = tmplCache
 	appConfig.UseCache = true
 
 	renderer.NewAppConfig(appConfig)
-	repo := handlers.NewRepo(appConfig)
+	repo := handlers.NewRepo(appConfig, dbConn)
 	handlers.NewHandlers(repo)
 
-	return nil
+	return dbConn, nil
 }

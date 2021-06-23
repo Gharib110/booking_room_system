@@ -5,8 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/DapperBlondie/booking_system/pkg/config"
+	"github.com/DapperBlondie/booking_system/pkg/driver"
 	"github.com/DapperBlondie/booking_system/pkg/models"
 	"github.com/DapperBlondie/booking_system/pkg/renderer"
+	"github.com/DapperBlondie/booking_system/pkg/repository"
+	"github.com/DapperBlondie/booking_system/pkg/repository/dbrepo"
 	"github.com/DapperBlondie/booking_system/validation"
 	"log"
 	"math"
@@ -15,6 +18,7 @@ import (
 
 type Repository struct {
 	AppConf *config.AppConfig
+	DB 		repository.DatabaseRepo
 }
 
 type JsonResponse struct {
@@ -25,25 +29,21 @@ type JsonResponse struct {
 // Repo a variable we can share our wide configuration with handlers
 var Repo *Repository
 
-// NewRepo make a repository for our handlers
-// NewRepo Such as constructor for our struct
-func NewRepo(ac *config.AppConfig) *Repository {
-
+// NewRepo make a repository for our handlers, Such as constructor for our struct
+func NewRepo(ac *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
-
 		AppConf: ac,
+		DB: dbrepo.NewPostgresRepo(db.SQL, ac),
 	}
 }
 
 // NewHandlers assign the repo to internal Repo variable
 func NewHandlers(repo *Repository) {
-
 	Repo = repo
 }
 
 // HomePg handle function  for HomePage
 func (repo *Repository) HomePg(w http.ResponseWriter, r *http.Request) {
-
 	remoteIP := r.RemoteAddr
 	repo.AppConf.Session.Put(r.Context(), "remote-ip", remoteIP)
 	renderer.RenderByCacheTemplates(&w, r, "home.page.tmpl", &models.TemplateData{})
@@ -51,7 +51,6 @@ func (repo *Repository) HomePg(w http.ResponseWriter, r *http.Request) {
 
 // About handle the about page
 func (repo *Repository) About(w http.ResponseWriter, r *http.Request) {
-
 	renderer.RenderByCacheTemplates(&w, r, "about.page.tmpl", &models.TemplateData{
 		StringMap: map[string]string{"test": "Hello, I am here !",
 			"remote_ip": repo.AppConf.Session.GetString(r.Context(), "remote-ip")},

@@ -18,9 +18,8 @@ func WriteToConsole(next http.Handler) http.Handler {
 
 // CSRFTokenGenerator generate a CSRF token for us in the templateData structure
 func CSRFTokenGenerator(next http.Handler) http.Handler {
-
 	csrfTokenHandler := nosurf.New(next)
-	csrfTokenHandler.SetBaseCookie(http.Cookie{
+	csrfTokenHandler.SetBaseCookie(http.Cookie {
 		Path:     "/",
 		Secure:   appConfig.IsProduction,
 		HttpOnly: true,
@@ -33,6 +32,5 @@ func CSRFTokenGenerator(next http.Handler) http.Handler {
 // SessionLoad load the session for us and store them in the browser for each request
 // SessionLoad and use this middleware in the main.chiRoutes function
 func SessionLoad(next http.Handler) http.Handler {
-
 	return session.LoadAndSave(next)
 }

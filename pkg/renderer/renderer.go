@@ -17,12 +17,10 @@ var appConfig *config.AppConfig
 
 // NewAppConfig for setting the appConfig in the renderer.go
 func NewAppConfig(config *config.AppConfig) {
-
 	appConfig = config
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
-
 	td.Flash = appConfig.Session.PopString(r.Context(), "flash")
 	td.Warning = appConfig.Session.PopString(r.Context(), "warning")
 	td.Error = appConfig.Session.PopString(r.Context(), "error")
@@ -33,7 +31,6 @@ func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateDa
 
 // RenderTemplate render a go template
 func RenderTemplate(w *http.ResponseWriter, tmpl string, tmplData *models.TemplateData) {
-
 	parsedTmpl, err := template.ParseFiles("./templates/" + tmpl)
 	if err != nil || parsedTmpl == nil {
 
@@ -52,7 +49,6 @@ func RenderTemplate(w *http.ResponseWriter, tmpl string, tmplData *models.Templa
 
 // RenderByCacheTemplates render a go template by templatesCache
 func RenderByCacheTemplates(w *http.ResponseWriter, r *http.Request, tmpl string, tmplData *models.TemplateData) {
-
 	cacheTmpls := appConfig.TemplateCache
 
 	Tmpl, ok := cacheTmpls[tmpl]
@@ -82,7 +78,6 @@ func RenderByCacheTemplates(w *http.ResponseWriter, r *http.Request, tmpl string
 
 // CreateCacheTemplates for rendering and caching the templates
 func CreateCacheTemplates() (map[string]*template.Template, error) {
-
 	myCache := map[string]*template.Template{}
 
 	pages, err := filepath.Glob("./templates/*.page.tmpl")

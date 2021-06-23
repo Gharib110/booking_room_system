@@ -11,7 +11,6 @@ import (
 
 // routes manage out Application Routes for us using pat pkg
 func routes(appConfig *config.AppConfig) http.Handler {
-
 	mux := pat.New()
 	mux.Get("/", http.HandlerFunc(handlers.Repo.HomePg))
 	mux.Get("/About", http.HandlerFunc(handlers.Repo.About))
@@ -23,7 +22,6 @@ func routes(appConfig *config.AppConfig) http.Handler {
 
 // chiRoutes use chi pkg for creating a request multiplexer for us
 func chiRoutes(appConfig *config.AppConfig) http.Handler {
-
 	mux := chi.NewRouter()
 	fileServer := http.FileServer(http.Dir("./static/"))
 
