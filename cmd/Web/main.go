@@ -58,6 +58,11 @@ func run() (*driver.DB, error) {
 	appConfig.IsProduction = false
 
 	gob.Register(models.ReservationData{})
+	gob.Register(models.Rooms{})
+	gob.Register(models.Users{})
+	gob.Register(models.Restrictions{})
+	gob.Register(models.Reservations{})
+
 	session = scs.New()
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Persist = true
