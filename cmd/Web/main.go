@@ -18,7 +18,7 @@ import (
 const (
 	ConnHost = "localhost:"
 	ConnPort = "8080"
-	PostgresDBString = "host=localost port=5432 dbname=postgres user=postgres password=alireza1380##"
+	PostgresDBString = "host=localhost port=5432 dbname=postgres user=postgres password=alireza1380##"
 )
 
 var appConfig *config.AppConfig

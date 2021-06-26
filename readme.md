@@ -7,7 +7,8 @@
   - github.com/alexedwards/scs/v2
   - github.com/justinas/nosurf
   - github.com/go-chi/chi
-  - github.com/jackx/pgx/v4
+  - github.com/jackc/pgx/v4
+  - github.com/asaskevich/govalidator
     
 
 
