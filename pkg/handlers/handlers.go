@@ -14,11 +14,13 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type Repository struct {
 	AppConf *config.AppConfig
-	DB 		repository.DatabaseRepo
+	DB      repository.DatabaseRepo
 }
 
 type JsonResponse struct {
@@ -33,7 +35,7 @@ var Repo *Repository
 func NewRepo(ac *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		AppConf: ac,
-		DB: dbrepo.NewPostgresRepo(db.SQL, ac),
+		DB:      dbrepo.NewPostgresRepo(db.SQL, ac),
 	}
 }
 
@@ -120,11 +122,39 @@ func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) 
 		log.Println("We have some errors in parsing reservation from data")
 	}
 
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+
+	layout := "2006-01-02"
+	start_date, err := time.Parse(layout, sd)
+	if err != nil {
+		log.Println("Error in parsing the start_date : " + err.Error())
+	}
+	end_date, err := time.Parse(layout, ed)
+	if err != nil {
+		log.Println("Error in parsing the end_date : " + err.Error())
+	}
+
+	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil {
+		log.Println("Error in parsing the room_id : " + err.Error())
+	}
+
 	reservation := models.ReservationData{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Phone:     r.Form.Get("phone"),
 		Email:     r.Form.Get("email"),
+	}
+
+	reservationDB := models.Reservations{
+		FirstName: r.Form.Get("first_name"),
+		LastName:  r.Form.Get("last_name"),
+		Phone:     r.Form.Get("phone"),
+		Email:     r.Form.Get("email"),
+		StartDate: start_date,
+		EndDate:   end_date,
+		RoomID:    roomID,
 	}
 
 	form := validation.New(r.PostForm)
@@ -142,10 +172,30 @@ func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) 
 		})
 
 		return
-	} else {
-		repo.AppConf.Session.Put(r.Context(), "reservation", reservation)
-		http.Redirect(w, r, "/Reservation_Summary", http.StatusSeeOther)
 	}
+
+	newReservationID, err := repo.DB.InsertReservation(reservationDB)
+	if err != nil {
+		log.Fatal("We can not be able to add reservation data into the database : " + err.Error())
+	}
+
+	restrictionData := models.RoomsRestrictions{
+		RoomID:        roomID,
+		ReservationID: newReservationID,
+		RestrictionID: 1,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+		StartDate:     start_date,
+		EndDate:       end_date,
+	}
+
+	err = repo.DB.InsertRestrictionRoom(restrictionData)
+	if err != nil {
+		log.Println("We can not be able to add restriction data into the database : " + err.Error())
+	}
+
+	repo.AppConf.Session.Put(r.Context(), "reservation", reservation)
+	http.Redirect(w, r, "/Reservation_Summary", http.StatusSeeOther)
 }
 
 // ReservationSummary for getting the PostReservation data and show them to the user

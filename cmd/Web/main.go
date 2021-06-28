@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	ConnHost = "localhost:"
-	ConnPort = "8080"
-	PostgresDBString = "host=localhost port=5432 dbname=postgres user=postgres password=alireza1380##"
+	ConnHost         = "localhost:"
+	ConnPort         = "8080"
+	PostgresDBString = "host=localhost port=5720 dbname=postgres user=postgres password=alireza1380##"
 )
 
 var appConfig *config.AppConfig
@@ -29,7 +29,7 @@ func main() {
 	defer func(SQL *sql.DB) {
 		err := SQL.Close()
 		if err != nil {
-			log.Fatal(err.Error() + " ,We can not close the connection to postgreSQL :(")
+			log.Fatal(err.Error() + " ,We can not be able to close connection to postgreSQL :(")
 		}
 	}(dbConn.SQL)
 

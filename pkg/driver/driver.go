@@ -33,7 +33,7 @@ func NewDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-// testDB say Ping to the db and get error or nil
+// testDB say Ping to the db and get Pong or error
 func testDB(db *sql.DB) error {
 	err := db.Ping()
 	if err != nil {
