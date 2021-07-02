@@ -11,6 +11,7 @@ import (
 	"github.com/DapperBlondie/booking_system/pkg/repository"
 	"github.com/DapperBlondie/booking_system/pkg/repository/dbrepo"
 	"github.com/DapperBlondie/booking_system/validation"
+	"github.com/go-chi/chi"
 	"log"
 	"math"
 	"net/http"
@@ -102,13 +103,21 @@ func (repo *Repository) PostAvailability(w http.ResponseWriter, r *http.Request)
 		for _, room := range rooms {
 			fmt.Println("ROOM : ", room.ID, room.RoomName)
 		}
-		_, err = w.Write([]byte(fmt.Sprintf("start: %s\tend: %s\n", start_date, end_date)))
-		if err != nil {
-			_, err := fmt.Fprintf(w, "We get an error")
-			if err != nil {
-				return
-			}
+		data := make(map[string]interface{})
+		data["rooms"] = rooms
+		renderer.RenderByCacheTemplates(&w, r, "choose_room.page.tmpl", &models.TemplateData{
+			Data: data,
+		})
+
+		res := models.Reservations{
+			StartDate: start_date,
+			EndDate:   end_date,
 		}
+		repo.AppConf.Session.Put(r.Context(), "reservation", res)
+	}else {
+		repo.AppConf.Session.Put(r.Context(), "error", "NO Availability Exists")
+		http.Redirect(w, r, "/Availability", http.StatusSeeOther)
+		return
 	}
 
 	_, err = w.Write([]byte("Unexpected trouble happened !"))
@@ -244,6 +253,28 @@ func (repo *Repository) ReservationSummary(w http.ResponseWriter, r *http.Reques
 	renderer.RenderByCacheTemplates(&w, r, "reservation_summary.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
+}
+
+func (repo *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request)  {
+	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		_, err = fmt.Fprintf(w, "There is no any id Comeback to the homepage")
+		return
+	}
+
+	resData, ok := repo.AppConf.Session.Get(r.Context(), "reservation").(models.Reservations)
+	if !ok {
+		_, err := fmt.Fprintf(w, "We have some troble for getting the reservation data in browser cookie")
+		if err != nil {
+			return
+		}
+		return
+	}
+
+	resData.RoomID = roomID
+	repo.AppConf.Session.Put(r.Context(), "reservation", resData)
+	http.Redirect(w, r, "/Reserve", http.StatusSeeOther)
+	return
 }
 
 // AdditionPg handle /About

@@ -8,9 +8,7 @@ import (
 
 // WriteToConsole provide a functionality for write the every request route to the console
 func WriteToConsole(next http.Handler) http.Handler {
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		fmt.Println("Request : ", r.URL)
 		next.ServeHTTP(w, r)
 	})
