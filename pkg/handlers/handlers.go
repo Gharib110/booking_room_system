@@ -76,12 +76,42 @@ func (repo *Repository) Availability(w http.ResponseWriter, r *http.Request) {
 
 // PostAvailability for handling the availability page
 func (repo *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
-	start_date := r.Form.Get("start_date")
-	end_date := r.Form.Get("end_date")
-	_, err := w.Write([]byte(fmt.Sprintf("start: %s\tend: %s\n", start_date, end_date)))
+	start := r.Form.Get("start_date")
+	end := r.Form.Get("end_date")
+
+	layout := "2006-01-02"
+	start_date, err := time.Parse(layout, start)
 	if err != nil {
-		fmt.Fprintf(w, "We get an error")
+		log.Println("Error in parsing the start_date : " + err.Error())
 	}
+	end_date, err := time.Parse(layout, end)
+	if err != nil {
+		log.Println("Error in parsing the end_date : " + err.Error())
+	}
+
+	rooms, err := repo.DB.SearchAvailabilityForAllRooms(start_date, end_date)
+	if err != nil {
+		_, err := fmt.Fprint(w, "We got an error during search in our database for availability")
+		if err != nil {
+			return
+		}
+		return
+	}
+
+	if len(rooms) != 0 {
+		for _, room := range rooms {
+			fmt.Println("ROOM : ", room.ID, room.RoomName)
+		}
+		_, err = w.Write([]byte(fmt.Sprintf("start: %s\tend: %s\n", start_date, end_date)))
+		if err != nil {
+			_, err := fmt.Fprintf(w, "We get an error")
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	_, err = w.Write([]byte("Unexpected trouble happened !"))
 }
 
 // JSONAvailability used for getting the information for start date and end date
