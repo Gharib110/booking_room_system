@@ -66,7 +66,7 @@ func (r *PostgresDBRepo) InsertRestrictionRoom(restrict models.RoomsRestrictions
 	return nil
 }
 
-// SearchAvailabilityByDate search across the availability of the times we have there
+// SearchAvailabilityByDateByRoomID search across the availability of the times we have there
 func (r *PostgresDBRepo) SearchAvailabilityByDateByRoomID(start, end time.Time, roomID int) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*6)
 	defer cancel()
@@ -113,4 +113,26 @@ func (r *PostgresDBRepo) SearchAvailabilityForAllRooms(start, end time.Time) ([]
 	}
 
 	return rooms, nil
+}
+
+func (r *PostgresDBRepo) GetRoomByID(id int) (models.Rooms, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*6)
+	defer cancel()
+
+	var room models.Rooms
+	query := "SELECT id,room_name,created_at,updated_at FROM rooms WHERE id=$1"
+
+	row := r.DB.QueryRowContext(ctx, query, id)
+	err := row.Scan(
+		&room.ID,
+		&room.RoomName,
+		&room.CreatedAt,
+		&room.UpdatedAt,
+	)
+	if err != nil {
+		log.Println("An error occurred during scanning the row in GetRoomByID : " + err.Error() + "\n")
+		return room, err
+	}
+
+	return room, nil
 }

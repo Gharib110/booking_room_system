@@ -114,7 +114,7 @@ func (repo *Repository) PostAvailability(w http.ResponseWriter, r *http.Request)
 			EndDate:   end_date,
 		}
 		repo.AppConf.Session.Put(r.Context(), "reservation", res)
-	}else {
+	} else {
 		repo.AppConf.Session.Put(r.Context(), "error", "NO Availability Exists")
 		http.Redirect(w, r, "/Availability", http.StatusSeeOther)
 		return
@@ -144,13 +144,34 @@ func (repo *Repository) JSONAvailability(w http.ResponseWriter, r *http.Request)
 
 // Reservation for handling the Reserve operation
 func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	var emptyReservation models.ReservationData
+	res, ok := repo.AppConf.Session.Get(r.Context(), "reservation").(models.Reservations)
+	if !ok {
+		log.Println("An error occurred in Reservation handler : " + errors.New("not be able to retrieve reservation data\nfrom the session").Error())
+		return
+	}
+
+	room, err := repo.DB.GetRoomByID(res.RoomID)
+	if err != nil {
+		log.Println("An error occurred in Reservation handler : " + err.Error() + "\n")
+		return
+	}
+
+	res.Room.RoomName = room.RoomName
+
 	data := make(map[string]interface{})
-	data["reservation"] = emptyReservation
+	data["reservation"] = res
+
+	sd := res.StartDate.Format("2006-11-12")
+	ed := res.StartDate.Format("2006-11-12")
+
+	strMap := make(map[string]string)
+	strMap["start_date"] = sd
+	strMap["end_date"] = ed
 
 	renderer.RenderByCacheTemplates(&w, r, "make_reservation.page.tmpl", &models.TemplateData{
-		Form: validation.New(nil),
-		Data: data,
+		Form:      validation.New(nil),
+		Data:      data,
+		StringMap: strMap,
 	})
 }
 
@@ -255,7 +276,8 @@ func (repo *Repository) ReservationSummary(w http.ResponseWriter, r *http.Reques
 	})
 }
 
-func (repo *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request)  {
+// ChooseRoom for handle choosing a room from available rooms
+func (repo *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		_, err = fmt.Fprintf(w, "There is no any id Comeback to the homepage")
