@@ -25,7 +25,7 @@ type Repository struct {
 }
 
 type JsonResponse struct {
-	OK      bool   `json:"ok"`
+	OK      int    `json:"ok"`
 	Message string `json:"message"`
 }
 
@@ -125,8 +125,24 @@ func (repo *Repository) PostAvailability(w http.ResponseWriter, r *http.Request)
 
 // JSONAvailability used for getting the information for start date and end date
 func (repo *Repository) JSONAvailability(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Fprintf(w, "Something went wrong")
+		log.Println("Error in parsing form in JSONAvailablity : " + err.Error() + "\n")
+		return
+	}
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+	room_id, err := strconv.Atoi(r.Form.Get("room_id"))
+
+	layout := "2006-08-12"
+	startDate, _ := time.Parse(layout, sd)
+	endDate, _ := time.Parse(layout, ed)
+
+	available, _ := repo.DB.SearchAvailabilityByDateByRoomID(startDate, endDate, room_id)
+
 	resp := JsonResponse{
-		OK:      true,
+		OK:      available,
 		Message: "Available",
 	}
 
@@ -161,6 +177,8 @@ func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
 	data["reservation"] = res
 
+	repo.AppConf.Session.Put(r.Context(), "reservation", res)
+
 	sd := res.StartDate.Format("2006-11-12")
 	ed := res.StartDate.Format("2006-11-12")
 
@@ -177,6 +195,11 @@ func (repo *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 
 // PostReservation handling the post request that send from // make_reservation.page.tmpl reservation form
 func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+	res, ok := repo.AppConf.Session.Get(r.Context(), "reservation").(models.Reservations)
+	if !ok {
+		log.Println("An error occurred in PostReservation : " +
+			errors.New("we can not pullout the session from browser").Error())
+	}
 	err := r.ParseForm()
 	if err != nil {
 		log.Println("We have some errors in parsing reservation from data")
@@ -212,8 +235,8 @@ func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) 
 		LastName:  r.Form.Get("last_name"),
 		Phone:     r.Form.Get("phone"),
 		Email:     r.Form.Get("email"),
-		StartDate: start_date,
-		EndDate:   end_date,
+		StartDate: res.StartDate,
+		EndDate:   res.EndDate,
 		RoomID:    roomID,
 	}
 
@@ -225,6 +248,8 @@ func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) 
 	if !form.Valid() {
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
+
+		repo.AppConf.Session.Put(r.Context(), "reservation", reservation)
 
 		renderer.RenderByCacheTemplates(&w, r, "make_reservation.page.tmpl", &models.TemplateData{
 			Form: form,

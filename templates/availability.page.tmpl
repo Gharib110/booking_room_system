@@ -6,6 +6,7 @@
             <div class="col">
                 <form id="json_data_form" action="/Availability" method="post" novalidate class="needs-validation">
                     <input type="text" name="csrf_token" hidden value={{.CSFRToken}} />
+                    <input type="text" hidden name="room_id" value="1" />
                     <div class="form-group">
                         <label for="start_date">Start Date</label>
                         <input required type="date" class="form-control" id="start_date" name="start_date" aria-describedby="startDateHelp">
