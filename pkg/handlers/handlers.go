@@ -29,6 +29,12 @@ type JsonResponse struct {
 	Message string `json:"message"`
 }
 
+type BookRoomResponse struct {
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+	OK        int    `json:"ok"`
+}
+
 // Repo a variable we can share our wide configuration with handlers
 var Repo *Repository
 
@@ -133,15 +139,15 @@ func (repo *Repository) JSONAvailability(w http.ResponseWriter, r *http.Request)
 	}
 	sd := r.Form.Get("start_date")
 	ed := r.Form.Get("end_date")
-	room_id, err := strconv.Atoi(r.Form.Get("room_id"))
+	roomId, err := strconv.Atoi(r.Form.Get("room_id"))
 
 	layout := "2006-08-12"
 	startDate, _ := time.Parse(layout, sd)
 	endDate, _ := time.Parse(layout, ed)
 
-	available, _ := repo.DB.SearchAvailabilityByDateByRoomID(startDate, endDate, room_id)
+	available, _ := repo.DB.SearchAvailabilityByDateByRoomID(startDate, endDate, roomId)
 
-	resp := JsonResponse{
+	resp := &JsonResponse{
 		OK:      available,
 		Message: "Available",
 	}
@@ -155,6 +161,30 @@ func (repo *Repository) JSONAvailability(w http.ResponseWriter, r *http.Request)
 	_, err = w.Write(out)
 	if err != nil {
 		log.Println(err)
+	}
+}
+
+//BookRoom used for getting the booking information from URL query params
+func (repo *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
+	sd := r.URL.Query().Get("start_date")
+	ed := r.URL.Query().Get("end_date")
+
+	roomResp := &BookRoomResponse{
+		StartDate: sd,
+		EndDate:   ed,
+		OK:        200,
+	}
+
+	roomRespB, err := json.MarshalIndent(roomResp, "", "   ")
+	if err != nil {
+		log.Println("could not be able to marshal the BookRoomResponse : " + err.Error() + "\n")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(roomRespB)
+	if err != nil {
+		log.Println("Error occurred in writing response into the response writer : " + err.Error() + "\n")
+		return
 	}
 }
 
