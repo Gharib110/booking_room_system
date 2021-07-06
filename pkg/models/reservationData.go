@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"html/template"
+	"time"
+)
 
 //ReservationData is the reservation data that we want to persist into the database
 type ReservationData struct {
@@ -66,4 +69,12 @@ type RoomsRestrictions struct {
 	Room          Rooms
 	Restriction   Restrictions
 	Reservation   Reservations
+}
+
+//MailData using for sending mail management structure
+type MailData struct {
+	To      string
+	From    string
+	Subject string
+	Content template.HTML
 }

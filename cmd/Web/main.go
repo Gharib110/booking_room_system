@@ -33,6 +33,11 @@ func main() {
 		}
 	}(dbConn.SQL)
 
+	defer close(appConfig.MailChan)
+
+	log.Println("Dummy Email server configured ...")
+	listenToMail()
+
 	if err != nil {
 		log.Fatal("This error occurred in the run method : ", err)
 	}
@@ -62,6 +67,9 @@ func run() (*driver.DB, error) {
 	gob.Register(models.Users{})
 	gob.Register(models.Restrictions{})
 	gob.Register(models.Reservations{})
+
+	mailChan := make(chan models.MailData)
+	appConfig.MailChan = mailChan
 
 	session = scs.New()
 	session.Cookie.SameSite = http.SameSiteLaxMode
