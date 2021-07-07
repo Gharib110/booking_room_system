@@ -253,14 +253,14 @@ func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) 
 		log.Println("Error in parsing the room_id : " + err.Error())
 	}
 
-	reservation := models.ReservationData{
+	reservation := &models.ReservationData{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Phone:     r.Form.Get("phone"),
 		Email:     r.Form.Get("email"),
 	}
 
-	reservationDB := models.Reservations{
+	reservationDB := &models.Reservations{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Phone:     r.Form.Get("phone"),
@@ -289,7 +289,7 @@ func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	newReservationID, err := repo.DB.InsertReservation(reservationDB)
+	newReservationID, err := repo.DB.InsertReservation(*reservationDB)
 	if err != nil {
 		log.Fatal("We can not be able to add reservation data into the database : " + err.Error())
 	}
@@ -308,6 +308,15 @@ func (repo *Repository) PostReservation(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Println("We can not be able to add restriction data into the database : " + err.Error())
 	}
+
+	emailMsg := &models.MailData{
+		To:      res.Email,
+		From:    "alirezagharib@dapper.me",
+		Subject: "Reservation Confirmation",
+		Content: "FirstName : " + reservationDB.FirstName + "\n" + "LastName : " + reservationDB.LastName + "\n" + "E-mail : " + reservationDB.Email + "\n",
+	}
+
+	repo.AppConf.MailChan <- *emailMsg
 
 	repo.AppConf.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/Reservation_Summary", http.StatusSeeOther)

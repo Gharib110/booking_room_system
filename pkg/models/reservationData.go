@@ -1,7 +1,6 @@
 package models
 
 import (
-	"html/template"
 	"time"
 )
 
@@ -76,5 +75,5 @@ type MailData struct {
 	To      string
 	From    string
 	Subject string
-	Content template.HTML
+	Content string
 }
