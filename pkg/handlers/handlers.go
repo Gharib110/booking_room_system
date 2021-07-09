@@ -363,6 +363,11 @@ func (repo *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (repo *Repository) LoginHandler(w http.ResponseWriter, r *http.Request)  {
+	renderer.RenderByCacheTemplates(&w, r, "login.page.tmpl",
+		&models.TemplateData{Form: validation.New(nil)})
+}
+
 // AdditionPg handle /About
 func (repo *Repository) AdditionPg(w http.ResponseWriter, r *http.Request) {
 

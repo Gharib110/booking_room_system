@@ -48,6 +48,7 @@ func chiRoutes(appConfig *config.AppConfig) http.Handler {
 	mux.Get("/Reservation_Summary", handlers.Repo.ReservationSummary)
 	mux.Get("/choose_room/{id}", handlers.Repo.ChooseRoom)
 	mux.Get("/book_room", handlers.Repo.BookRoom)
+	mux.Get("/User/Login", handlers.Repo.LoginHandler)
 
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
