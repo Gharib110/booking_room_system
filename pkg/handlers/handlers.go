@@ -363,9 +363,55 @@ func (repo *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// LoginHandler handle the log-in page for Users log-in
 func (repo *Repository) LoginHandler(w http.ResponseWriter, r *http.Request)  {
 	renderer.RenderByCacheTemplates(&w, r, "login.page.tmpl",
 		&models.TemplateData{Form: validation.New(nil)})
+}
+
+// PostLoginHandler handle the log-in data that user post it to our application
+func (repo *Repository) PostLoginHandler(w http.ResponseWriter, r *http.Request)  {
+	err := repo.AppConf.Session.RenewToken(r.Context())
+	if err != nil {
+		log.Println("An error occurred during renew the session token : " + err.Error() + "\n")
+		http.Redirect(w, r, "/User/Login", http.StatusSeeOther)
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		log.Println("An error occurred in parsing form data : " + err.Error() + "\n")
+		_, _ = fmt.Fprintf(w, "some error occurred in log-in procedure, try later")
+		repo.AppConf.Session.Put(r.Context(), "error", err.Error())
+		http.Redirect(w, r, "/User/Login", http.StatusSeeOther)
+		return
+	}
+
+	form := validation.New(r.PostForm)
+	form.RequiredField("email", "password")
+	if !form.Valid() {
+		// TODO - Take back the user to the log-in page
+		renderer.RenderByCacheTemplates(&w, r, "login.page.tmpl", &models.TemplateData{Form: form})
+
+		return
+	}
+
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	id, _, err := repo.DB.Authenticate(email, password)
+	if err != nil {
+		log.Println("error occurred during authenticating the user : " + err.Error() + "\n")
+		repo.AppConf.Session.Put(r.Context(), "error", err.Error())
+		http.Redirect(w, r, "/User/Login", http.StatusSeeOther)
+		return
+	}
+
+	repo.AppConf.Session.Put(r.Context(), "user_id", id)
+	repo.AppConf.Session.Put(r.Context(), "flash", "you have successfully logged in")
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+
+	return
 }
 
 // AdditionPg handle /About
@@ -401,6 +447,12 @@ func (repo *Repository) DivisionPg(w http.ResponseWriter, r *http.Request) {
 			_, _ = fmt.Fprintf(w, fmt.Sprintf("This error occurred : %s\n", err.Error()))
 		}
 	}
+}
+
+// IsAuthenticated is a helper method for checking the an user logged-in or not
+func (repo *Repository) IsAuthenticated(r *http.Request) bool {
+	exists := repo.AppConf.Session.Exists(r.Context(), "user_id")
+	return exists
 }
 
 // addValues add two integer value and return error and result
