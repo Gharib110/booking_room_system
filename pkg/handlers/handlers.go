@@ -414,6 +414,21 @@ func (repo *Repository) PostLoginHandler(w http.ResponseWriter, r *http.Request)
 	return
 }
 
+// LogoutHandler used for user logging out
+func (repo *Repository) LogoutHandler(w http.ResponseWriter, r *http.Request)  {
+	_ = repo.AppConf.Session.Destroy(r.Context())
+	_ = repo.AppConf.Session.RenewToken(r.Context())
+
+	http.Redirect(w, r, "/User/Login", http.StatusSeeOther)
+	return
+}
+
+// AdminDashboard used for handling admin dashboard for admins
+func (repo *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request)  {
+	renderer.RenderByCacheTemplates(&w, r, "admin-dashboard.page.tmpl",
+		&models.TemplateData{Form: validation.New(nil)})
+}
+
 // AdditionPg handle /About
 func (repo *Repository) AdditionPg(w http.ResponseWriter, r *http.Request) {
 

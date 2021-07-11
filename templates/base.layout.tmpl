@@ -45,6 +45,11 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/User/Login" tabindex="-1" aria-disabled="true">Login</a>
+                        {{if .IsAuthenticated 1}}
+                            <a class="nav-link" href="/User/Login" tabindex="-1" aria-disabled="true">Login</a>
+                        {{else}}
+                            <a class="nav-link" href="/User/Logout" tabindex="-1" aria-disabled="true">Login</a>
+                        {{end}}
                     </li>
                 </ul>
                 <form class="d-flex">

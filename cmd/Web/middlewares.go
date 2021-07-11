@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/DapperBlondie/booking_system/pkg/handlers"
 	"github.com/justinas/nosurf"
 	"net/http"
 )
@@ -31,4 +32,15 @@ func CSRFTokenGenerator(next http.Handler) http.Handler {
 // SessionLoad and use this middleware in the main.chiRoutes function
 func SessionLoad(next http.Handler) http.Handler {
 	return session.LoadAndSave(next)
+}
+
+func AuthChecker(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		if !handlers.Repo.IsAuthenticated(r) {
+			session.Put(r.Context(), "error", "Log-in first !")
+			http.Redirect(w, r, "/User/Login", http.StatusSeeOther)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }

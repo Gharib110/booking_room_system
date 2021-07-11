@@ -28,6 +28,7 @@ func chiRoutes(appConfig *config.AppConfig) http.Handler {
 	mux.Use(middleware.Recoverer)
 	mux.Use(CSRFTokenGenerator)
 	mux.Use(SessionLoad)
+	mux.Use(AuthChecker)
 	mux.Use(WriteToConsole)
 
 	mux.Get("/", handlers.Repo.HomePg)
@@ -50,6 +51,12 @@ func chiRoutes(appConfig *config.AppConfig) http.Handler {
 	mux.Get("/book_room", handlers.Repo.BookRoom)
 	mux.Get("/User/Login", handlers.Repo.LoginHandler)
 	mux.Post("/User/Login", handlers.Repo.PostLoginHandler)
+	mux.Get("/User/Logout", handlers.Repo.LogoutHandler)
+
+	mux.Route("/admin", func(router chi.Router) {
+		router.Use(AuthChecker)
+		router.Get("/dashboard", handlers.Repo.AdminDashboard)
+	})
 
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 

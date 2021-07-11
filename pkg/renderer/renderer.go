@@ -20,10 +20,17 @@ func NewAppConfig(config *config.AppConfig) {
 	appConfig = config
 }
 
+// AddDefaultData use for adding default data to every single *.page.tmpl for using it in them
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
 	td.Flash = appConfig.Session.PopString(r.Context(), "flash")
 	td.Warning = appConfig.Session.PopString(r.Context(), "warning")
 	td.Error = appConfig.Session.PopString(r.Context(), "error")
+
+	if appConfig.Session.Exists(r.Context(), "user_id") {
+		td.IsAuthenticated = 1
+	} else {
+		td.IsAuthenticated = 0
+	}
 
 	td.CSFRToken = nosurf.Token(r)
 	return td
