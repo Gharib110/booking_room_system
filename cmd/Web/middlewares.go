@@ -34,6 +34,7 @@ func SessionLoad(next http.Handler) http.Handler {
 	return session.LoadAndSave(next)
 }
 
+// AuthChecker for checking the user is authenticated or not
 func AuthChecker(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		if !handlers.Repo.IsAuthenticated(r) {
