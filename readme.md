@@ -1,45 +1,11 @@
 # BookingManagementSystem
+ An application for manage a website that rent rooms for any type of meetings .
+ that have two type such as generals or majors rooms for any type of porpuses.
+ I use html template library for generating and parsing HTML templates.
 
-- go SDK Version 1.16.3
-  
+***
 
-- Third Party Packages :
-  - github.com/alexedwards/scs/v2
-  - github.com/justinas/nosurf
-  - github.com/go-chi/chi
-  - github.com/jackc/pgx/v4
-  - github.com/asaskevich/govalidator
-    
-
-
-- cmd /
-    - Web /
-        - main pkg
-    
-
-    
-- pkg /
-    - config /
-    - handlers /
-    - models /
-    - renderer /
-    
-
-
-- static /
-    - images /
-    
-
-
-- templates /
-
-
-
-- validation /
-
-
-
-- html_sources /
-
-
-    
+## Reservation E-mail
+ I use a third party pkg for sending email to users who rent rooms.
+ 
+ 
