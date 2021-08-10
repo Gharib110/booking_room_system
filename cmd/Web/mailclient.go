@@ -38,8 +38,8 @@ func sendMsg(msg models.MailData) {
 	}
 
 	mailStr := string(mailTemplate)
-	mailStr = strings.Replace(mailStr, "[%name%]", msg.To, 1)
-	mailStr = strings.Replace(mailStr, "[%subject%]", msg.Subject, 1)
+	mailStr = strings.Replace(mailStr, "[%name%]", msg.To, 2)
+	mailStr = strings.Replace(mailStr, "[%subject%]", msg.Subject, 2)
 	mailStr = strings.Replace(mailStr, "[%content%]", msg.Content, 2)
 
 	email := mail.NewMSG()
